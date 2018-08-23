@@ -54,7 +54,19 @@ Example Wikipedia uses:
 
 This doesn’t necessarily mean that the user actually wants this URI translated.
 
-### Solution 2 - HrefTranslate attribute (preferred)
+### Solution 2 - Use a meta tag on the page
+Use a [meta](https://html.spec.whatwg.org/multipage/semantics.html#the-meta-element) tag to indicate that links should be followed in a specific
+language.
+
+Pros:
+* You don't have to specify it on every link
+
+Cons:
+* You can't control which links are translated and which aren't. The page may only wish to translate different origin links but not same
+origin links. eg. Searching for a term might lead to multiple pages of search terms and you won't necessarily want to translate the second
+page of the search results.
+
+### Solution 3 - HrefTranslate attribute (preferred)
 Define a new attribute “hrefTranslate” that can be used by the user agent to know that the website wishes to present the linked page in a desired language. 
 
 Example:
@@ -68,3 +80,14 @@ Pros:
 
 Cons:
 * Can be laborious for manually written content
+
+
+# Security Considerations
+
+User Agents should only use the attribute as a hint to invoke the translation service. The user agent might apply policies to not to invoke the
+translation service. (eg. incognito mode, certain domains). Some browsers already support auto translation of pages when navigating to a page
+in a different language so this is just a modification of that flow.
+
+# Privacy Considerations
+
+No additional privacy concerns beyond those that should already be implemented for a user agent supporting a client side translation service.
