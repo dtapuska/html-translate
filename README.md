@@ -81,6 +81,8 @@ Pros:
 Cons:
 * Can be laborious for manually written content
 
+[Draft HTML Specification](https://whatpr.org/html/3870/links.html#attr-hyperlink-hreftranslate) has been proposed in [pull request 3870](https://github.com/whatwg/html/pull/3870).
+
 
 # Security Considerations
 
