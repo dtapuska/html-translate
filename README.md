@@ -18,7 +18,7 @@ Search Engines may return results from other languages.  Consider this example:
 The presented text in blue beside the livescience.com URL is “Translate this page” in Hindi and this anchor directs to a server side
 translation service of the linked article.
 
-Server based translation services are problematic because they operate on the page and don’t execute the javascript of the page.
+Server based translation services are problematic because they operate on the page and don’t execute the JavaScript of the page.
 Although this surfaces content to the user that may not have been accessible before, it presents a page in low fidelity.
 Client side based translation services are much more effective as they can iterate the DOM and translate text nodes directly.
 
