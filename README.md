@@ -74,10 +74,17 @@ For pages that are presented as translated to the user the user agent should mai
 that to subsequent navigations if the hrefTranslate attribute is not present.
 
 Example:
+
+```HTML
 <a href=”https://example.com” hrefTranslate=”hi”>उदाहरण</a>
+```
 
 Example with hreflang:
+
+```HTML
 <a href=”https://example.com” hrefLang=”en” hrefTranslate=”hi”>उदाहरण</a>
+
+```
 
 Pros:
 * **Predictable** outcomes
