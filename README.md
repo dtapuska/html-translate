@@ -92,7 +92,6 @@ Pros:
 * Supports **decentralizing** the web by decoupling with search engines
 * Browsers could be written such that they could **choose** its own translation service
 * Automatically fallback to server-side translation if client side isn’t supported
-* Language hint is sent to the origin as an accept-language before the translation is invoked
 * It is only a hint. The final decision of **how to translate** rests with the User Agent. For example, Chrome intends to have user
 permission prompts when hrefTranslate is encountered from non-trusted sites.
 
