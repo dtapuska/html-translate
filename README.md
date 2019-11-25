@@ -1,7 +1,21 @@
+# Table Of Contents
+1. [Motivation](#motivation)
+   1. [Article Suggestion Use Case](#suggestusecase)
+   1. [Search Use Case](#searchusecase)
+1. [Problem Statement](#problemstatement)
+1. [Proposal](#proposal)
+   1. [User agent Enhacements](#enhancements)
+   1. [Feature Detection](#detection)
+   1. [Summary](#summary)
+1. [Alternatives](#alternatives)
+1. [Previous Discussion](#discussion)
+1. [Security](#security)
+1. [Privacy](#privacy)
+
 # API for hinting translation to native UA component
 An explainer to define the ability for a page author to hint to the UA's translation engine that a href should be translated if followed.
 
-## Motivation
+## Motivation <a name="motivation"></a>
 
 Irrespective of the language that the user has set in their browser, the internet predominantly tends to be presented in a handful of languages.
 [W3Techs](https://w3techs.com/technologies/overview/content_language/all) attributes English as being the most popular, and the top 8
@@ -10,6 +24,21 @@ languages capture 83.7% of the pages online.
 When you contrast this against the popularity of native languages spoken, it’s clear that certain language speakers are under-served. Take
 for example that [0.05%](https://w3techs.com/technologies/details/cl-hi-/all/all) of sites are presented in Hindi yet just under
 [5%](https://en.wikipedia.org/wiki/List_of_languages_by_number_of_native_speakers) of the world’s population speaks Hindi.
+
+Two use cases are presented below:
+- Article suggestion
+- Search
+
+### Article Suggestion Use Case <a name="suggestusecase"></a>
+
+Facebook routinely surfaces web page links users might be interested in
+exploring. It could take advantage of a translation hint if it had
+a relationship with the user and an article that might be a good
+match for the user but in the wrong language. The website could use
+the hint to suggest to the user agent that it would be a good idea to
+translate the linked article.
+
+### Search Use Case <a name="searchusecase"></a>
 
 Considering this let’s look at the amount of information provided in [Hindi for W3C on wikipedia](https://hi.wikipedia.org/wiki/%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%8D%E0%A4%B5_%E0%A4%B5%E0%A5%8D%E0%A4%AF%E0%A4%BE%E0%A4%AA%E0%A5%80_%E0%A4%B5%E0%A5%87%E0%A4%AC_%E0%A4%B8%E0%A4%82%E0%A4%98).
 
@@ -41,7 +70,7 @@ that language.
 
 ![Translated Search Results](https://github.com/dtapuska/html-translate/raw/master/TranslatedResults.png "Search Results")
 
-## Problem Statement
+## Problem Statement <a name="problemstatement"></a>
 
 It is currently impossible to reliably invoke client side translation for a specific language. There are situations where the
 currently viewed website author wishes a specific target language for the destination of a linked page (via an anchor).
@@ -64,7 +93,7 @@ a non-top language monolingual user, providing a way of triggering client side l
 my language" cannot be serviced by the User Agent at all because it is unaware of the context of a site interaction.
 
 
-## Proposal - HrefTranslate attribute
+## Proposal - HrefTranslate attribute  <a name="proposal"></a>
 
 Define a new attribute “hrefTranslate” that can be used by the User Agent to know that the website wishes to present the
 linked page in a desired language. If the User Agent trusts that site, it may invoke a translation service on the results.
@@ -85,6 +114,55 @@ Example with hreflang:
 <a href=”https://example.com” hrefLang=”en” hrefTranslate=”hi”>उदाहरण</a>
 
 ```
+[Draft HTML Specification](https://whatpr.org/html/3870/links.html#attr-hyperlink-hreftranslate) has been proposed in [pull request 3870](https://github.com/whatwg/html/pull/3870).
+
+### Possible enhancements for User Agent <a name="enhancements"></a>
+
+The user agent may also wish to keep track of how often a user clicks on links
+that have the same hrefTranslate and if the user continues to interact with
+those translated sites. This information may provide strong inference that
+the user agent may want to suggest to the user to adding the target
+language to the list of languages the browser supports that is sent in the
+Accept-Language.
+
+### Feature Detection and Fallback <a name="detection"></a>
+
+The hrefTranslate should not be supported in browsers that do not have
+client side translation or it has been disabled.
+
+Clients should be able to feature detect if the attribute is supported
+on the anchor prototype via:
+
+```Javascript
+HTMLAnchorElement.prototype.hasOwnProperty('hrefTranslate');
+```
+
+Clients will need to dynamically decide via (javascript) how to present
+the link to the user. Consider the example below presenting the English
+Wikipedia site in German.
+
+```HTML
+
+<a id="anchor1" hrefTranslate="de" href="https://en.wikipedia.org">Wikipedia</a>
+
+<script>
+  // Detect if hrefTranslate is supported or not.
+  if (!HTMLAnchorElement.prototype.hasOwnProperty('hrefTranslate')) {
+
+    // It is not supported we might want to redirect the user
+    // to a server based translation service. We can always read
+    // custom properties via getAttribute so grab the hrefTranslate
+    // attribute in browsers that don't support it and place it as
+    // the target language on a server translation link.
+
+    var anchor = document.getElementById('anchor1');
+    anchor.href = "http://translate.google.com/translate?tl=" + anchor.getAttribute('hrefTranslate') + '&u=' + encodeURI(anchor.href);
+  }
+</script>
+
+```
+
+### Summary  <a name="summary"></a>
 
 Pros:
 * **Predictable** outcomes
@@ -98,10 +176,8 @@ permission prompts when hrefTranslate is encountered from non-trusted sites.
 Cons:
 * Can be laborious for manually written content
 
-[Draft HTML Specification](https://whatpr.org/html/3870/links.html#attr-hyperlink-hreftranslate) has been proposed in [pull request 3870](https://github.com/whatwg/html/pull/3870).
 
-
-## Previous Discussion
+## Previous Discussion <a name="discussion"></a>
 
 HTML Spec [issue 2945](https://github.com/whatwg/html/issues/2945) presents this topic. A number of solutions were discussed and
 guidance was indicated that focus should be placed on ensuring the user’s language is correctly set.
@@ -112,7 +188,7 @@ software tends to work better in English. This explainer is an attempt to clarif
 the problem exists even if the user’s language is set correctly. For many such users, there is a large deficit of content and
 content quality in their language
 
-## Alternate Solutions Considered
+## Alternate Solutions Considered  <a name="alternatives"></a>
 
 ### Lang attribute
 Use the [lang](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) attribute of the href (note this is not the
@@ -132,13 +208,18 @@ Example Wikipedia uses:
 
 This doesn’t necessarily mean that the user actually wants this URI translated.
 
-# Security Considerations
+# Security Considerations  <a name="security"></a>
 
 User Agents should only use the attribute as a hint to invoke the translation service. The user agent might apply policies to not to invoke the
 translation service. (eg. incognito mode, certain domains). Some browsers already support auto-translation of pages when navigating to a
 page in a different language so this is just a modification of that flow.
 
 
-# Privacy Considerations
+# Privacy Considerations  <a name="privacy"></a>
 
 No additional privacy concerns beyond those that should already be implemented for a user agent supporting a client side translation service.
+
+User agents should prompt the user if a translation hint is provided to
+receive affirmitive confirmation that the user wishes to translate the page.
+
+See [Chrome's Privacy Whitepaper](https://www.google.com/chrome/privacy/whitepaper.html) for details around their client side translation service.
