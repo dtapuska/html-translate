@@ -126,7 +126,7 @@ my language" cannot be serviced by the User Agent at all because it is unaware o
 Define a new attribute “hrefTranslate” that can be used by the User Agent to know that the website wishes to present the
 linked page in a desired language. It is a hint only, the User Agent will need to decide whether to invoke the client
 translation service or not. The client-base translation service can be offline or online, depending
-on which is available. For untrusted sites the User Agent should have an affirmitive confirmation to the user that
+on which is available. For untrusted sites the User Agent should have an affirmative confirmation to the user that
 translation should be performed because the page may contain sensitive user data. If the User Agent trusts that site
 (perhaps by the user previously agreeing to the prompts), it may invoke a translation service automatically on the results.
 
@@ -245,6 +245,17 @@ User Agents should only use the attribute as a hint to invoke the translation se
 translation service. (eg. incognito mode, certain domains). Some browsers already support auto-translation of pages when navigating to a
 page in a different language so this is just a modification of that flow.
 
+Care should be taken when implementing this feature so that it cannot be used to exfiltrate information across origins. Note that an
+attacker can navigate a page to a cross-origin URL with the `hrefTranslate` attribute set. If they can determine that the
+victim page has different layout bounds when translated, they can possible infer some text on the page.
+
+So client side translation and the use of this feature should be restricted in the following ways:
+- Limit feature to full (non-same-page) navigations
+- Do not translate iframes
+- Do not process `hrefTranslate` if the `target` frame is not the same as the source frame and `rel` is not set.
+  - A newly opened window will be in same `AgentCluster` and have a handle back to the opener window which can be inadvertenly
+    be used as a communication channel possibly determining layout size.
+
 # Privacy Considerations  <a name="privacy"></a>
 
 No additional privacy concerns beyond those that should already be implemented
@@ -260,7 +271,7 @@ service. Vendors should provide a policy explainer document so users can
 understand the implications of translating a page. For an example see
 [Chrome's Privacy Whitepaper](https://www.google.com/chrome/privacy/whitepaper.html).
 
-## Affirmitive confirmation
+## Affirmative confirmation
 
 Depending on the implementation of the client-based translation service it may
 be either offline or online. For online user agents must follow good security
@@ -271,9 +282,13 @@ Concerns that should be considered are:
 - History tracking
 
 Since the page may contain sensitive data user agents should have a confirmation
-prompt to the user before performing the translation. If the user has automatically
-translated the page based on a previous confirmation from the user it should make it
-clear to the user that page was machine translated.
+prompt to the user before performing the translation. The user agent should not
+automatically translate an anchor with `hrefTranslate` set based solely on that
+the user has previously translated to the target language. If the user agent
+wishes to support automatic translation it must use additional data such as
+a set of trusted URIs to which translations are allowed by the user. If the
+user has automatically translated the page based on a previous confirmation
+from the user it should make it clear to the user that page was machine translated.
 
 # Considerations outside the scope  <a name="scope"></a>
 
@@ -296,3 +311,7 @@ translation can be detected. This proposal which makes client-based translation 
 to invoke may cause this issue to become more prevalant. This may not be tractable because
 the ideal scenario (user agent has correct `Accept-Language`) also leaks information in
 the request but it is worth highlighting.
+
+Iframes embedded inside the translated page may be able to determine the language the
+page is translated in or infer content from the page by determining information via
+`IntersectionObserver`.
